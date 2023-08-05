@@ -20,18 +20,29 @@ function createImage(img_path) {
   });
 }
 
-function ImagePhaseInOut(img) {
-  let currentImage;
-  return createImage(img)
-    .then((img) => {
-      currentImage = img;
-      imageContainer.append(img);
-      return wait(2);
-    })
-    .then(() => {
-      currentImage.style.display = "none";
-    })
-    .catch((err) => console.error(err));
+async function loadAndPause (imgSrc) {
+  img = await createImage(imgSrc);
+  imageContainer.append(img);
+  await wait(2);
+  img.style.display = 'none';
+}
+
+async function loadAll (imgArray) {
+  let imgs = images_array.map(async function(i){
+    return await createImage(i);
+  })
+  console.log(imgs);
+  imgsEl = await Promise.all(imgs);
+  console.log(imgsEl);
+  let prevImg = 1;
+  imgsEl.forEach(async i => {
+    imageContainer.append(i);
+    prevImg += 1;
+    await wait(prevImg*2);
+    i.style.display = 'none';
+    i.remove(i);
+  });
+
 }
 
 const images_array = [
@@ -41,7 +52,5 @@ const images_array = [
   "images/4.jpg",
 ];
 
-
-for (let i=0, p = Promise.resolve(); i < 4; i++) {
-    p = p.then(() => ImagePhaseInOut(images_array[i]));
-}
+// loadAndPause("images/1.jpg");
+loadAll(images_array);
